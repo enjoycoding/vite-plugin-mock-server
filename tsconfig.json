@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strictNullChecks": false,
+    "declaration": true,
+    "noEmit": false,
+    "lib": ["esnext", "dom"],
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

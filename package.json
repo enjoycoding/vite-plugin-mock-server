@@ -1,0 +1,38 @@
+{
+  "name": "vite-plugin-mock-server",
+  "version": "1.0.0",
+  "description": "Vite mock server plugin",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsc -w -p .",
+    "build": "rm -rf dist && tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/enjoycoding/vite-plugin-mock-server.git"
+  },
+  "keywords": [
+    "vite",
+    "mock",
+    "hmr"
+  ],
+  "author": {
+    "name": "牧码山人",
+    "email": "mumashanren@gmail.com",
+    "url": "https://github.com/mumashanren"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/enjoycoding/vite-plugin-mock-server/issues"
+  },
+  "homepage": "https://github.com/enjoycoding/vite-plugin-mock-server#readme",
+  "devDependencies": {
+    "@types/node": "^15.12.4",
+    "typescript": "^4.3.4",
+    "vite": "^2.3.8"
+  },
+  "dependencies": {
+    "ant-path-matcher": "0.0.3",
+    "chokidar": "^3.5.2"
+  }
+}
