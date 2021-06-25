@@ -2,8 +2,9 @@
   <h1>{{ msg }}</h1>
 
   <p>
-    Visit mock API:
-    <a href="/api/hello1" target="hello1">Hello</a>
+    Visit mock APIs:
+    <p><a href="/api/hello1" target="hello1">Hello</a></p>
+    <p><a href="/api/test1/users/mumasharen/how-to-use-vite-plugin-mock-server" target="hello1">Path variables</a></p>
   </p>
 </template>
 

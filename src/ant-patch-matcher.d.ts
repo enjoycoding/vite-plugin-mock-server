@@ -1,12 +1,12 @@
-declare module 'ant-path-matcher' {
+declare module '@howiefh/ant-path-matcher' {
 
-  export type MatchFunction = {
-    (pattern: string, path: string): boolean
+  export type DoMatchFunction = {
+    (pattern: string, path: string, fullMatch: boolean, pathVars?: { [key: string]: string }): boolean
   }
 
   class AntPathMatcher {
     constructor()
-    match: MatchFunction
+    doMatch: DoMatchFunction
   }
 
   export default AntPathMatcher

@@ -1,6 +1,6 @@
 <template>
   <img alt="logo" src="./assets/logo.png" style="width: 128px;"/>
-  <HelloWorld msg="vite-plugin-mock-server sample" />
+  <HelloWorld msg="vite-plugin-mock-server example" />
 </template>
 
 <script lang="ts">
