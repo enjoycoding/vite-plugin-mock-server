@@ -79,7 +79,7 @@ const options: MockOptions = {
   
 ```ts
 export type MockFunction = {
-  (req: http.IncomingMessage, res: http.ServerResponse): void
+  (req: Connect.IncomingMessage, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
 }
 ```
 
@@ -95,12 +95,10 @@ export type MockHandler = {
 
 ## Mock file examples
 
-The `pattern` is an ant-style path pattern string, use ***[ant-path-matcher](https://www.npmjs.com/package/ant-path-matcher)*** to match the `pattern` and `request URL`.
+The `pattern` is an ant-style path pattern string, use ***[@howiefh/ant-path-matcher](https://www.npmjs.com/package/@howiefh/ant-path-matcher)*** to match the `pattern` and `request URL`.
 
 ```ts
 // example/mock/es.mock.ts
-
-import { MockHandler } from 'vite-plugin-mock-server'
 
 const mocks: MockHandler[] = [
   {
@@ -113,6 +111,28 @@ const mocks: MockHandler[] = [
     pattern: '/api/test1/*',
     handle: (req, res) => {
       res.end('Hello world!' + req.url)
+    }
+  },
+  {
+    pattern: '/api/test1/users/{userId}',
+    handle: (req, res, pathVars) => {
+      const data = {
+        url: req.url,
+        pathVars: pathVars
+      }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify(data))
+    }
+  },
+  {
+    pattern: '/api/test1/users/{userId}/{blogId}',
+    handle: (req, res, pathVars) => {
+      const data = {
+        url: req.url,
+        pathVars: pathVars
+      }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(JSON.stringify(data))
     }
   }
 ]

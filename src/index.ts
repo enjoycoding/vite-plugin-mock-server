@@ -1,6 +1,6 @@
 import { Plugin, ViteDevServer, Connect } from 'vite'
 import * as http from 'http'
-import AntPathMatcher from 'ant-path-matcher'
+import AntPathMatcher from '@howiefh/ant-path-matcher'
 import chokidar from 'chokidar'
 import path from 'path'
 import fs from 'fs'
@@ -11,7 +11,7 @@ const TEMPORARY_FILE_SUFFIX = '.tmp.js'
 let LOG_LEVEL = 'error'
 
 export type MockFunction = {
-  (req: http.IncomingMessage, res: http.ServerResponse): void
+  (req: Connect.IncomingMessage, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
 }
 
 export type MockHandler = {
@@ -91,13 +91,19 @@ const doHandle = async (
         handlers = module.exports
       }
       for (const [, handler] of handlers.entries()) {
-        let matched = matcher.match(handler.pattern, req.url)
+        let path = req.url
+        const index = path.indexOf('?')
+        if (index > 0) {
+          path = path.substring(0, index)
+        }
+        let pathVars: { [key: string]: string } = {}
+        let matched = matcher.doMatch(handler.pattern, path, true, pathVars)
         if (matched && handler.method) {
           matched = handler.method === req.method
         }
         if (matched) {
-          logInfo('matched and call mock handler', handler)
-          handler.handle(req, res)
+          logInfo('matched and call mock handler', handler, 'pathVars', pathVars)
+          handler.handle(req, res, { ...pathVars })
           return
         }
       }
