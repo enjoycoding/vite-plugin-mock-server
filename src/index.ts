@@ -31,28 +31,29 @@ export type MockOptions = {
 }
 
 export default (options?: MockOptions): Plugin => {
-  // init options
-  options = options || {}
-  options.logLevel = options.logLevel || 'error'
-  options.urlPrefixes = options.urlPrefixes || ['/api/']
-  options.mockRootDir = options.mockRootDir || './mock'
-  options.mockJsSuffix = options.mockJsSuffix || '.mock.js'
-  options.mockTsSuffix = options.mockTsSuffix || '.mock.ts'
-  options.noHandlerResponse404 = options.noHandlerResponse404 || true
-  if (options.mockModules && options.mockModules.length > 0) {
-    console.warn('[' + PLUGIN_NAME + '] mock modules will be set automatically, and the configuration will be ignored', options.mockModules)
-  }
-  options.mockModules = []
-  LOG_LEVEL = options.logLevel
-  // watch mock files
-  watchMockFiles(options).then(() => {
-    console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
-  })
-  // build url matcher
-  const matcher = new AntPathMatcher()
+
   return {
     name: PLUGIN_NAME,
     configureServer: async (server: ViteDevServer) => {
+      // build url matcher
+      const matcher = new AntPathMatcher()
+      // init options
+      options = options || {}
+      options.logLevel = options.logLevel || 'error'
+      options.urlPrefixes = options.urlPrefixes || ['/api/']
+      options.mockRootDir = options.mockRootDir || './mock'
+      options.mockJsSuffix = options.mockJsSuffix || '.mock.js'
+      options.mockTsSuffix = options.mockTsSuffix || '.mock.ts'
+      options.noHandlerResponse404 = options.noHandlerResponse404 || true
+      if (options.mockModules && options.mockModules.length > 0) {
+        console.warn('[' + PLUGIN_NAME + '] mock modules will be set automatically, and the configuration will be ignored', options.mockModules)
+      }
+      options.mockModules = []
+      LOG_LEVEL = options.logLevel
+      // watch mock files
+      watchMockFiles(options).then(() => {
+        console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
+      })
       server.middlewares.use((
         req: Connect.IncomingMessage,
         res: http.ServerResponse,
