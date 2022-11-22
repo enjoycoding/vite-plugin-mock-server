@@ -102,8 +102,24 @@ const doHandle = async (
         if (matched && handler.method) {
           matched = handler.method === req.method
         }
+
         if (matched) {
           logInfo('matched and call mock handler', handler, 'pathVars', pathVars)
+
+          if (req.method === 'POST') {
+            var body = ''
+            req.on('data', function (chunk) {
+              body += chunk
+            })
+            req.on('end', function () {
+              // add body to the request for the mocks to be able to use them when available
+              req.body = body ? JSON.parse(body) : undefined
+
+              handler.handle(req, res, { ...pathVars })
+            })
+            return
+          }
+
           handler.handle(req, res, { ...pathVars })
           return
         }
