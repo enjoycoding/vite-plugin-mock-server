@@ -107,7 +107,7 @@ const doHandle = async (
           logInfo('matched and call mock handler', handler, 'pathVars', pathVars)
 
           if (req.method === 'POST') {
-            var body = ''
+            let body = ''
             req.on('data', function (chunk) {
               body += chunk
             })
