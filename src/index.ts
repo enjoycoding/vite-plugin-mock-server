@@ -10,8 +10,10 @@ const PLUGIN_NAME = 'vite-plugin-mock-server'
 const TEMPORARY_FILE_SUFFIX = '.tmp.js'
 let LOG_LEVEL = 'error'
 
+type Request = Connect.IncomingMessage & { body?: any }
+
 export type MockFunction = {
-  (req: Connect.IncomingMessage, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
+  (req: Request, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
 }
 
 export type MockHandler = {
@@ -68,7 +70,7 @@ export default (options?: MockOptions): Plugin => {
 const doHandle = async (
   options: MockOptions,
   matcher: AntPathMatcher,
-  req: Connect.IncomingMessage,
+  req: Request,
   res: http.ServerResponse,
   next: Connect.NextFunction
 ) => {
