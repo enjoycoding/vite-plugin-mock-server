@@ -92,12 +92,8 @@ const doHandle = async (
         handlers = module.exports
       }
       for (const [, handler] of handlers.entries()) {
-        let path = req.url
-        const index = path.indexOf('?')
-        if (index > 0) {
-          path = path.substring(0, index)
-        }
-        let pathVars: { [key: string]: string } = {}
+        const [path, search] = req.url.split('?')
+        const pathVars: { [key: string]: string } = parseSearchQuery(search);
         let matched = matcher.doMatch(handler.pattern, path, true, pathVars)
         if (matched && handler.method) {
           matched = handler.method === req.method
@@ -226,6 +222,14 @@ const logInfo = (...optionalParams: any[]) => {
   if (LOG_LEVEL !== 'info') return
   console.info('[vite-plugin-mock-server]', optionalParams)
 }
+
+const parseSearchQuery = (search: string): { [key: string]: string } => !search ? {} : decodeURI(search)
+    .split('&')
+    .map(param => param.split('='))
+    .reduce((values: { [key: string]: string }, [key, value]) => {
+      values[key] = value;
+      return values;
+    }, {})
 
 const logErr = (...optionalParams: any[]) => {
   if (LOG_LEVEL === 'off') return
