@@ -10,8 +10,10 @@ const PLUGIN_NAME = 'vite-plugin-mock-server'
 const TEMPORARY_FILE_SUFFIX = '.tmp.js'
 let LOG_LEVEL = 'error'
 
+type Request = Connect.IncomingMessage & { body?: any }
+
 export type MockFunction = {
-  (req: Connect.IncomingMessage, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
+  (req: Request, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
 }
 
 export type MockHandler = {
@@ -68,7 +70,7 @@ export default (options?: MockOptions): Plugin => {
 const doHandle = async (
   options: MockOptions,
   matcher: AntPathMatcher,
-  req: Connect.IncomingMessage,
+  req: Request,
   res: http.ServerResponse,
   next: Connect.NextFunction
 ) => {
@@ -102,8 +104,24 @@ const doHandle = async (
         if (matched && handler.method) {
           matched = handler.method === req.method
         }
+
         if (matched) {
           logInfo('matched and call mock handler', handler, 'pathVars', pathVars)
+
+          if (req.method === 'POST') {
+            let body = ''
+            req.on('data', function (chunk) {
+              body += chunk
+            })
+            req.on('end', function () {
+              // add body to the request for the mocks to be able to use them when available
+              req.body = body ? JSON.parse(body) : undefined
+
+              handler.handle(req, res, { ...pathVars })
+            })
+            return
+          }
+
           handler.handle(req, res, { ...pathVars })
           return
         }
