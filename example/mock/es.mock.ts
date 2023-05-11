@@ -15,26 +15,25 @@ const mocks: MockHandler[] = [
   },
   {
     pattern: '/api/test1/users/{userId}',
-    handle: (req, res, pathVars) => {
+    handle: (req, res) => {
       const data = {
         url: req.url,
-        pathVars: pathVars
+        params: req.params,
+        query: req.query,
+        body: req.body
       }
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify(data))
     }
   },
   {
-    pattern: '/api/test1/users/{userId}/{blogId}',
-    handle: (req, res, pathVars) => {
-      const data = {
-        url: req.url,
-        pathVars: pathVars
-      }
+    pattern: '/api/test1/body/json',
+    method: 'POST',
+    handle: (req, res) => {
       res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify(data))
+      res.end(JSON.stringify(req.body))
     }
-  }
+  },
 ]
 
 export default mocks

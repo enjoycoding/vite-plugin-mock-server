@@ -4,7 +4,12 @@
   <p>
     Visit mock APIs:
     <p><a href="/api/hello1" target="hello1">Hello</a></p>
-    <p><a href="/api/test1/users/mumasharen/how-to-use-vite-plugin-mock-server" target="hello1">Path variables</a></p>
+    <p><a href="/api/test1/users/octoape" target="hello1">Path variables</a></p>
+    <form action="/api/test1/users/octoape?query=Search" method="post" target="_blank">
+      <input name="username" value="octoape"/>@
+      <input name="domain" value="test.com"/>
+      <button type="submit">submit test</button>
+    </form>
   </p>
 </template>
 
