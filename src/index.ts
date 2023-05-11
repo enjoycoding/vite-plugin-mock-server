@@ -10,11 +10,28 @@ const PLUGIN_NAME = 'vite-plugin-mock-server'
 const TEMPORARY_FILE_SUFFIX = '.tmp.js'
 let LOG_LEVEL = 'error'
 
-type Request = Connect.IncomingMessage & { body?: any }
+type Request = Connect.IncomingMessage & { 
+  body?: any, 
+  params?: { [key: string]: string }, 
+  query?: { [key: string]: string },
+  cookies?: { [key: string]: string },
+  session?: any
+}
 
 export type MockFunction = {
-  (req: Request, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
+  (
+    req: Request, 
+    res: http.ServerResponse, 
+    /** @deprecated in 2.0, use req.params **/
+    urlVars?: { [key: string]: string }
+  ): void
 }
+
+export type MockLayer = (
+    req: Request,
+    res: http.ServerResponse,
+    next: Connect.NextFunction
+) => void;
 
 export type MockHandler = {
   pattern: string,
@@ -30,6 +47,7 @@ export type MockOptions = {
   mockRootDir?: string
   mockModules?: string[]
   noHandlerResponse404?: boolean
+  middlewares?: MockLayer[]
 }
 
 export default (options?: MockOptions): Plugin => {
@@ -56,6 +74,11 @@ export default (options?: MockOptions): Plugin => {
       watchMockFiles(options).then(() => {
         console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
       })
+      if (options.middlewares) {
+        for (const [, layer] of options.middlewares.entries()) {
+          server.middlewares.use(layer);
+        }
+      }
       server.middlewares.use((
         req: Connect.IncomingMessage,
         res: http.ServerResponse,
@@ -94,8 +117,8 @@ const doHandle = async (
         handlers = module.exports
       }
       for (const [, handler] of handlers.entries()) {
-        const [path, search] = req.url.split('?')
-        const pathVars: { [key: string]: string } = parseSearchQuery(search);
+        const [path, qs] = req.url.split('?')
+        const pathVars: { [key: string]: string } = {};
         let matched = matcher.doMatch(handler.pattern, path, true, pathVars)
         if (matched && handler.method) {
           matched = handler.method === req.method
@@ -103,21 +126,8 @@ const doHandle = async (
 
         if (matched) {
           logInfo('matched and call mock handler', handler, 'pathVars', pathVars)
-
-          if (req.method === 'POST') {
-            let body = ''
-            req.on('data', function (chunk) {
-              body += chunk
-            })
-            req.on('end', function () {
-              // add body to the request for the mocks to be able to use them when available
-              req.body = body ? JSON.parse(body) : undefined
-
-              handler.handle(req, res, { ...pathVars })
-            })
-            return
-          }
-
+          req.params = pathVars;
+          req.query = parseQueryString(qs);
           handler.handle(req, res, { ...pathVars })
           return
         }
@@ -241,7 +251,7 @@ const logInfo = (...optionalParams: any[]) => {
   console.info('[vite-plugin-mock-server]', optionalParams)
 }
 
-const parseSearchQuery = (search: string): { [key: string]: string } => !search ? {} : decodeURI(search)
+const parseQueryString = (qs: string): { [key: string]: string } => !qs ? {} : decodeURI(qs)
     .split('&')
     .map(param => param.split('='))
     .reduce((values: { [key: string]: string }, [key, value]) => {

@@ -2,9 +2,12 @@
 
 [![npm][npm-img]][npm-url]
 
-Provide local mocks for [Vite](https://vitejs.dev).
+Provide local mocks for [Vite].
 
-A mock server plugin for [Vite](https://vitejs.dev), developed based on TypeScript. And support using TypeScript and JavaScript to write Mock API. When the Mock API file is modified, it will be hot updated automatically.
+A mock server plugin for [Vite], developed based on TypeScript. 
+And support using TypeScript and JavaScript to write Mock API. When the Mock API file 
+is modified, it will be hot updated automatically. Support and compatibility 
+with ***[express.js](https://github.com/expressjs/)*** middlewares.
 
 ## Install
 
@@ -29,18 +32,27 @@ npm run dev
 
 ## Usage
 
-- Config plugin in vite.config.ts
+- Config plugin in vite.config.ts, compatible with express.js middlewares.
 
 ```ts
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import mockServer from 'vite-plugin-mock-server'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import mockServer from '../src'
 
 export default defineConfig({
   plugins: [
     vue(),
     mockServer({
-      logLevel: 'info'
+      logLevel: 'info',
+      middlewares: [
+        cookieParser(),
+        bodyParser.json(),
+        bodyParser.urlencoded(),
+        bodyParser.text(),
+        bodyParser.raw()
+      ]
     })
   ]
 })
@@ -61,6 +73,7 @@ export type MockOptions = {
   mockRootDir?: string
   mockModules?: string[]
   noHandlerResponse404?: boolean
+  middlewares?: MockLayer[]
 }
 
 // default options
@@ -71,7 +84,20 @@ const options: MockOptions = {
   mockJsSuffix: '.mock.js',
   mockTsSuffix: '.mock.ts',
   noHandlerResponse404: true,
-  mockModules: [] 
+  mockModules: [],
+  middlewares: [] 
+}
+```
+
+- Request
+  
+```ts
+type Request = Connect.IncomingMessage & { 
+  body?: any, 
+  params?: { [key: string]: string }, 
+  query?: { [key: string]: string },
+  cookies?: { [key: string]: string },
+  session?: any
 }
 ```
 
@@ -79,7 +105,12 @@ const options: MockOptions = {
   
 ```ts
 export type MockFunction = {
-  (req: Connect.IncomingMessage, res: http.ServerResponse, urlVars?: { [key: string]: string }): void
+  (
+    req: Request, 
+    res: http.ServerResponse, 
+    /** @deprecated in 2.0, use req.params **/
+    urlVars?: { [key: string]: string }
+  ): void
 }
 ```
 
@@ -93,12 +124,26 @@ export type MockHandler = {
 }
 ```
 
+- MockLayer
+
+```ts
+export type MockLayer = (
+    req: Request,
+    res: http.ServerResponse,
+    next: Connect.NextFunction
+) => void;
+```
+
 ## Mock file examples
 
-The `pattern` is an ant-style path pattern string, use ***[@howiefh/ant-path-matcher](https://www.npmjs.com/package/@howiefh/ant-path-matcher)*** to match the `pattern` and `request URL`.
+The `pattern` is an ant-style path pattern string, 
+use ***[@howiefh/ant-path-matcher](https://www.npmjs.com/package/@howiefh/ant-path-matcher)*** 
+to match the `pattern` and `request URL`.
 
 ```ts
 // example/mock/es.mock.ts
+
+import { MockHandler } from '../../src'
 
 const mocks: MockHandler[] = [
   {
@@ -115,26 +160,25 @@ const mocks: MockHandler[] = [
   },
   {
     pattern: '/api/test1/users/{userId}',
-    handle: (req, res, pathVars) => {
+    handle: (req, res) => {
       const data = {
         url: req.url,
-        pathVars: pathVars
+        params: req.params,
+        query: req.query,
+        body: req.body
       }
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify(data))
     }
   },
   {
-    pattern: '/api/test1/users/{userId}/{blogId}',
-    handle: (req, res, pathVars) => {
-      const data = {
-        url: req.url,
-        pathVars: pathVars
-      }
+    pattern: '/api/test1/body/json',
+    method: 'POST',
+    handle: (req, res) => {
       res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify(data))
+      res.end(JSON.stringify(req.body))
     }
-  }
+  },
 ]
 
 export default mocks
@@ -219,4 +263,4 @@ MIT
 
 [npm-img]: https://img.shields.io/npm/v/vite-plugin-mock-server.svg
 [npm-url]: https://npmjs.com/package/vite-plugin-mock-server
-[vite-url]: https://vitejs.dev
+[Vite]: https://vitejs.dev

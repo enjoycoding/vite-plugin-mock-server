@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-mock-server",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Vite mock server plugin",
   "main": "dist/index.js",
   "scripts": {
@@ -17,9 +17,9 @@
     "hmr"
   ],
   "author": {
-    "name": "牧码山人",
-    "email": "mumashanren@gmail.com",
-    "url": "https://github.com/mumashanren"
+    "name": "Octoape",
+    "email": "octoape@qq.com",
+    "url": "https://github.com/octoape"
   },
   "license": "MIT",
   "bugs": {
