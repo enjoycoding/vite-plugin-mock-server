@@ -39,7 +39,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
-import mockServer from '../src'
+import mockServer from 'vite-plugin-mock-server'
 
 export default defineConfig({
   plugins: [
