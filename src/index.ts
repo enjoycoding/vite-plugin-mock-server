@@ -64,7 +64,7 @@ export default (options?: MockOptions): Plugin => {
       options.mockRootDir = options.mockRootDir || './mock'
       options.mockJsSuffix = options.mockJsSuffix || '.mock.js'
       options.mockTsSuffix = options.mockTsSuffix || '.mock.ts'
-      options.noHandlerResponse404 = options.noHandlerResponse404 || true
+      options.noHandlerResponse404 = options.noHandlerResponse404 === undefined ? true : Boolean(options.noHandlerResponse404)
       if (options.mockModules && options.mockModules.length > 0) {
         console.warn('[' + PLUGIN_NAME + '] mock modules will be set automatically, and the configuration will be ignored', options.mockModules)
       }
