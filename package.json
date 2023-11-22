@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-mock-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Vite mock server plugin",
   "main": "dist/index.js",
   "scripts": {
