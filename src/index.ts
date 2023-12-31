@@ -5,10 +5,12 @@ import chokidar from 'chokidar'
 import path from 'path'
 import fs from 'fs'
 import { build } from 'esbuild'
+import Module from 'module'
 
 const PLUGIN_NAME = 'vite-plugin-mock-server'
 const TEMPORARY_FILE_SUFFIX = '.tmp.js'
 let LOG_LEVEL = 'error'
+const requireCache = new Map<string, Module>()
 
 type Request = Connect.IncomingMessage & { 
   body?: any, 
@@ -90,6 +92,12 @@ export default (options?: MockOptions): Plugin => {
   }
 }
 
+async function importCache(modName: string){
+  const mod = await import(modName)
+  requireCache.set(modName, mod)
+  return mod
+}
+
 const doHandle = async (
   options: MockOptions,
   matcher: AntPathMatcher,
@@ -100,7 +108,7 @@ const doHandle = async (
   for (const [, prefix] of options.urlPrefixes.entries()) {
     if (!req.url.startsWith(prefix)) continue
     for (const [, modName] of options.mockModules.entries()) {
-      const module = require.cache[modName]
+      const module = requireCache.get(modName)
       if (!module) {
         continue
       }
@@ -154,7 +162,7 @@ const watchMockFiles = async (options: MockOptions) => {
     logInfo('event', event, 'path', path)
     if (event === 'addDir') return
     if (event === 'unlinkDir') {
-      for (const [, modName] of Object.keys(require.cache).entries()) {
+      for (const modName of [...requireCache.keys()]) {
         if (modName.startsWith(watchDir)) {
           await deleteMockModule(options, modName)
         }
@@ -201,7 +209,8 @@ const loadJsMockModule = async (options: MockOptions, moduleName: string, skipCh
   }
   await deleteMockModule(options, moduleName)
   logInfo('loading js mock module', moduleName)
-  const handlers = require(moduleName)
+  console.error(moduleName)
+  const handlers = await importCache('file://'+moduleName)
   if (!moduleName.endsWith(TEMPORARY_FILE_SUFFIX)) {
     logInfo('loaded mock handlers', handlers)
   }
