@@ -1,6 +1,6 @@
 import { ConfigEnv, defineConfig, Plugin, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import fetch from "node-fetch"
+import fetch from 'node-fetch'
 //import mockServer from 'vite-plugin-mock-server'
 //import mockServer from '../dist'
 import mockServer from '../src'

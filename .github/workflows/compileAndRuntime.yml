@@ -24,12 +24,20 @@ jobs:
     - name: restore example2
       working-directory: ./example2
       run: npm ci
-      # test build-time
+
+      # test esm build-time
     - name: build build-example2
       working-directory: ./example2
       run: npm run build
-      # test runtime
-    - name: runtime-test example2
+      # test esm runtime
+    - name: runtime and api test example2
       working-directory: ./example2
       run: npm run runtest
-        
+
+    - name: restore example
+      working-directory: ./example
+      run: npm ci
+      # test cjs runtime
+    - name: runtime and api test example
+      working-directory: ./example
+      run: npm run runtest
