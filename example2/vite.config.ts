@@ -1,9 +1,8 @@
 import { ConfigEnv, defineConfig, Plugin, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 //import mockServer from 'vite-plugin-mock-server'
-import mockServer from '../dist/index.js'
+import mockServer from '../dist'
 
-// https://vitejs.dev/config/
 export default ({ command, mode }: ConfigEnv): UserConfigExport => {
 
   if(mode === 'test')
@@ -20,8 +19,6 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         mockServer()
     ]}
 }
-
-
 
 function VitePluginRestart(options = {delay: 5000}): Plugin {
   const {delay} = options
