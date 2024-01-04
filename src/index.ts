@@ -93,9 +93,14 @@ export default (options?: MockOptions): Plugin => {
 
 async function importCache(modName: string) {
   const mod = await import('file://' + modName)
-  const module = mod.default
-  requireCache.set(modName, module);
-  return module;
+  let module
+  if (mod.default && mod.default.default)
+    module = mod.default
+  else 
+    module = mod
+
+  requireCache.set(modName, module)
+  return module
 }
 
 const doHandle = async (
