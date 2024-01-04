@@ -128,8 +128,9 @@ const doHandle = async (
           handlers = exports
         }
       } else {
-        handlers = module.exports
+        handlers = module.default
       }
+
       for (const [, handler] of handlers.entries()) {
         const [path, qs] = req.url.split('?')
         const pathVars: { [key: string]: string } = {};
