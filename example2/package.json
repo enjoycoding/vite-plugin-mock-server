@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "runtest": "vite --mode=test"
   },
   "dependencies": {
     "vue": "^3.3.11"
