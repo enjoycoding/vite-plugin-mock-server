@@ -5,12 +5,11 @@ import chokidar from 'chokidar'
 import path from 'path'
 import fs from 'fs'
 import { build } from 'esbuild'
-import Module from 'module'
 
 const PLUGIN_NAME = 'vite-plugin-mock-server'
-const TEMPORARY_FILE_SUFFIX = '.tmp.js'
+const TEMPORARY_FILE_SUFFIX = '.tmp.cjs'
 let LOG_LEVEL = 'error'
-const requireCache = new Map<string, Module>()
+const requireCache = new Map<string, any>()
 
 type Request = Connect.IncomingMessage & { 
   body?: any, 
@@ -92,10 +91,11 @@ export default (options?: MockOptions): Plugin => {
   }
 }
 
-async function importCache(modName: string){
-  const mod = await import(modName)
-  requireCache.set(modName, mod)
-  return mod
+async function importCache(modName: string) {
+  const mod = await import('file://' + modName)
+  const module = mod.default
+  requireCache.set(modName, module);
+  return module;
 }
 
 const doHandle = async (
@@ -109,12 +109,13 @@ const doHandle = async (
     if (!req.url.startsWith(prefix)) continue
     for (const [, modName] of options.mockModules.entries()) {
       const module = requireCache.get(modName)
+      
       if (!module) {
         continue
       }
       let handlers: MockHandler[]
       if (modName.endsWith(TEMPORARY_FILE_SUFFIX)) {
-        const exports = module.exports.default
+        const exports = module.default
         logInfo('typeof exports', typeof exports)
         if (typeof exports === 'function') {
           handlers = exports()
@@ -210,7 +211,7 @@ const loadJsMockModule = async (options: MockOptions, moduleName: string, skipCh
   await deleteMockModule(options, moduleName)
   logInfo('loading js mock module', moduleName)
   console.error(moduleName)
-  const handlers = await importCache('file://'+moduleName)
+  const handlers = await importCache(moduleName)
   if (!moduleName.endsWith(TEMPORARY_FILE_SUFFIX)) {
     logInfo('loaded mock handlers', handlers)
   }
@@ -247,7 +248,7 @@ const loadTsMockModule = async (options: MockOptions, moduleName: string) => {
 
 const deleteMockModule = async (options: MockOptions, moduleName: string) => {
   logInfo('delete module cache', moduleName)
-  delete require.cache[moduleName]
+  requireCache.delete(moduleName)
   for (const [i, modName] of options.mockModules.entries()) {
     if (modName === moduleName) {
       options.mockModules.splice(i, 1)
