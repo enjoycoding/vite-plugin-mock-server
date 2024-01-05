@@ -216,7 +216,6 @@ const loadJsMockModule = async (options: MockOptions, moduleName: string, skipCh
   }
   await deleteMockModule(options, moduleName)
   logInfo('loading js mock module', moduleName)
-  console.error(moduleName)
   const handlers = await importCache(moduleName)
   if (!moduleName.endsWith(TEMPORARY_FILE_SUFFIX)) {
     logInfo('loaded mock handlers', handlers)
