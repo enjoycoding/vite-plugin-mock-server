@@ -7,8 +7,9 @@ import fs from 'fs'
 import { build } from 'esbuild'
 
 const PLUGIN_NAME = 'vite-plugin-mock-server'
-const TEMPORARY_FILE_SUFFIX = '.tmp.js'
+const TEMPORARY_FILE_SUFFIX = '.tmp.cjs'
 let LOG_LEVEL = 'error'
+const requireCache = new Map<string, any>()
 
 type Request = Connect.IncomingMessage & { 
   body?: any, 
@@ -90,6 +91,18 @@ export default (options?: MockOptions): Plugin => {
   }
 }
 
+async function importCache(modName: string) {
+  const mod = await import('file://' + modName)
+  let module
+  if (mod.default && mod.default.default)
+    module = mod.default
+  else 
+    module = mod
+
+  requireCache.set(modName, module)
+  return module
+}
+
 const doHandle = async (
   options: MockOptions,
   matcher: AntPathMatcher,
@@ -100,13 +113,14 @@ const doHandle = async (
   for (const [, prefix] of options.urlPrefixes.entries()) {
     if (!req.url.startsWith(prefix)) continue
     for (const [, modName] of options.mockModules.entries()) {
-      const module = require.cache[modName]
+      const module = requireCache.get(modName)
+      
       if (!module) {
         continue
       }
       let handlers: MockHandler[]
       if (modName.endsWith(TEMPORARY_FILE_SUFFIX)) {
-        const exports = module.exports.default
+        const exports = module.default
         logInfo('typeof exports', typeof exports)
         if (typeof exports === 'function') {
           handlers = exports()
@@ -114,8 +128,9 @@ const doHandle = async (
           handlers = exports
         }
       } else {
-        handlers = module.exports
+        handlers = module.default
       }
+
       for (const [, handler] of handlers.entries()) {
         const [path, qs] = req.url.split('?')
         const pathVars: { [key: string]: string } = {};
@@ -154,7 +169,7 @@ const watchMockFiles = async (options: MockOptions) => {
     logInfo('event', event, 'path', path)
     if (event === 'addDir') return
     if (event === 'unlinkDir') {
-      for (const [, modName] of Object.keys(require.cache).entries()) {
+      for (const modName of [...requireCache.keys()]) {
         if (modName.startsWith(watchDir)) {
           await deleteMockModule(options, modName)
         }
@@ -201,7 +216,7 @@ const loadJsMockModule = async (options: MockOptions, moduleName: string, skipCh
   }
   await deleteMockModule(options, moduleName)
   logInfo('loading js mock module', moduleName)
-  const handlers = require(moduleName)
+  const handlers = await importCache(moduleName)
   if (!moduleName.endsWith(TEMPORARY_FILE_SUFFIX)) {
     logInfo('loaded mock handlers', handlers)
   }
@@ -238,7 +253,7 @@ const loadTsMockModule = async (options: MockOptions, moduleName: string) => {
 
 const deleteMockModule = async (options: MockOptions, moduleName: string) => {
   logInfo('delete module cache', moduleName)
-  delete require.cache[moduleName]
+  requireCache.delete(moduleName)
   for (const [i, modName] of options.mockModules.entries()) {
     if (modName === moduleName) {
       options.mockModules.splice(i, 1)

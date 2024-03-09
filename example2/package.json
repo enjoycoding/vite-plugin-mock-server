@@ -1,0 +1,22 @@
+{
+  "name": "example2",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "runtest": "vite --mode=test"
+  },
+  "dependencies": {
+    "vue": "^3.3.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "node-fetch": "^3.3.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8",
+    "vite-plugin-mock-server": "^1.1.0",
+    "vue-tsc": "^1.8.25"
+  }
+}

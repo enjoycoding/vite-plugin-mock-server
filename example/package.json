@@ -3,19 +3,22 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "runtest": "vite --config test-vite.config.ts"
   },
+  "type": "commonjs",
   "dependencies": {
-    "vue": "^3.0.5"
+    "vue": "^3.2.25"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.2",
-    "@vitejs/plugin-vue": "^1.2.3",
+    "@vitejs/plugin-vue": "^2.3.4",
     "@vue/compiler-sfc": "^3.0.5",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
+    "node-fetch-commonjs": "^3.3.2",
     "typescript": "^4.3.2",
-    "vite": "^2.3.8",
+    "vite": "^2.9.12",
     "vue-tsc": "^0.0.24"
   }
 }

@@ -58,6 +58,20 @@ export default defineConfig({
 })
 ```
 
+- Or just use it with the default parameters, place your mocks in the folder "mock" with name that prefix *.mock.ts or *mock.js, The default api to mock is '/api/'
+```ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import mockServer from 'vite-plugin-mock-server'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    mockServer())
+  ]
+})
+```
+
 ## Module exports
 
 - MockOptions
@@ -176,7 +190,15 @@ const mocks: MockHandler[] = [
     method: 'POST',
     handle: (req, res) => {
       res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify(req.body))
+
+      //req is incomingMessage which extends stream.Readable 
+      // --> https://nodejs.org/api/stream.html#readablereadsize
+      // res.end need to be within the function
+      // there is a size limit for the bodyString to get parsed 
+      req.on('data', (bodyString: string) => { 
+        let body: object = JSON.parse(bodyString)
+        res.end(JSON.stringify(body))
+      })
     }
   },
 ]
@@ -197,6 +219,7 @@ export default (): MockHandler[] => [
   {
     pattern: '/api/test2/2',
     handle: (req, res) => {
+      res.statusCode = 203
       res.end('Hello world!' + req.url)
     }
   }

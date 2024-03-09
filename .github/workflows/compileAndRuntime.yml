@@ -1,0 +1,43 @@
+name: compile-and-runtime-test
+
+on: push
+
+jobs:
+  doAll:
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - run: npm ci
+    - run: npm run build
+
+    - name: restore example2
+      working-directory: ./example2
+      run: npm ci
+
+      # test esm build-time
+    - name: build build-example2
+      working-directory: ./example2
+      run: npm run build
+      # test esm runtime
+    - name: runtime and api test example2
+      working-directory: ./example2
+      run: npm run runtest
+
+    - name: restore example
+      working-directory: ./example
+      run: npm ci
+      # test cjs runtime
+    - name: runtime and api test example
+      working-directory: ./example
+      run: npm run runtest
