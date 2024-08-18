@@ -70,10 +70,11 @@ export default (options?: MockOptions): Plugin => {
         console.warn('[' + PLUGIN_NAME + '] mock modules will be set automatically, and the configuration will be ignored', options.mockModules)
       }
       options.mockModules = []
-      LOG_LEVEL = options.logLevel
+      const initialLogLevel = LOG_LEVEL = options.logLevel;
       // watch mock files
       watchMockFiles(options).then(() => {
-        console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
+        if ("info" === initialLogLevel)
+          console.log('[' + PLUGIN_NAME + '] mock server started. options =', options);
       })
       if (options.middlewares) {
         for (const [, layer] of options.middlewares.entries()) {
