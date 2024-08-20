@@ -49,6 +49,7 @@ export type MockOptions = {
   mockModules?: string[]
   noHandlerResponse404?: boolean
   middlewares?: MockLayer[]
+  printStartupLog?: boolean
 }
 
 export default (options?: MockOptions): Plugin => {
@@ -66,6 +67,7 @@ export default (options?: MockOptions): Plugin => {
       options.mockJsSuffix = options.mockJsSuffix || '.mock.js'
       options.mockTsSuffix = options.mockTsSuffix || '.mock.ts'
       options.noHandlerResponse404 = options.noHandlerResponse404 || true
+      options.printStartupLog = options.printStartupLog || true
       if (options.mockModules && options.mockModules.length > 0) {
         console.warn('[' + PLUGIN_NAME + '] mock modules will be set automatically, and the configuration will be ignored', options.mockModules)
       }
@@ -73,7 +75,9 @@ export default (options?: MockOptions): Plugin => {
       LOG_LEVEL = options.logLevel
       // watch mock files
       watchMockFiles(options).then(() => {
-        console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
+        if (options.printStartupLog) {
+          console.log('[' + PLUGIN_NAME + '] mock server started. options =', options)
+        }
       })
       if (options.middlewares) {
         for (const [, layer] of options.middlewares.entries()) {

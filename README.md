@@ -88,6 +88,7 @@ export type MockOptions = {
   mockModules?: string[]
   noHandlerResponse404?: boolean
   middlewares?: MockLayer[]
+  printStartupLog?: boolean
 }
 
 // default options
@@ -99,7 +100,8 @@ const options: MockOptions = {
   mockTsSuffix: '.mock.ts',
   noHandlerResponse404: true,
   mockModules: [],
-  middlewares: [] 
+  middlewares: [],
+  printStartupLog: true
 }
 ```
 
