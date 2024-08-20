@@ -77,7 +77,14 @@ export default (options?: MockOptions): Plugin => {
       })
       if (options.middlewares) {
         for (const [, layer] of options.middlewares.entries()) {
-          server.middlewares.use(layer);
+          server.middlewares.use((req, res, next) => {
+            const hasMatch = options.urlPrefixes.some((prefix) => req.url.startsWith(prefix))
+            if (hasMatch) {
+              layer(req, res, next)
+            } else {
+              next()
+            }
+          });
         }
       }
       server.middlewares.use((
