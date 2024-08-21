@@ -18,12 +18,12 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         
-    - run: npm ci
+    - run: npm ci --registry=https://registry.npmjs.org/
     - run: npm run build
 
     - name: restore example2
       working-directory: ./example2
-      run: npm ci
+      run: npm ci --registry=https://registry.npmjs.org/
 
       # test esm build-time
     - name: build build-example2
@@ -36,7 +36,7 @@ jobs:
 
     - name: restore example
       working-directory: ./example
-      run: npm ci
+      run: npm ci --registry=https://registry.npmjs.org/
       # test cjs runtime
     - name: runtime and api test example
       working-directory: ./example
