@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
@@ -19,7 +19,7 @@ export default defineConfig({
         bodyParser.text(),
         bodyParser.raw()
       ]
-    }),
+    }) as Plugin,
     {
       name: `vite-plugin-stop`,
       apply: 'serve',
@@ -37,7 +37,7 @@ export default defineConfig({
           if(responseText !== 'Hello world!/api/test1/1' || userId !== "octoape") 
             throw new Error('wrong mock response')
           else 
-          console.log('\x1b[32m ✓ correct mock response \x1b[0m');
+            console.log('\x1b[32m ✓ correct mock response \x1b[0m');
         
           setTimeout(process.exit, 1e3)
         }

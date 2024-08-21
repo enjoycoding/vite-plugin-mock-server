@@ -1,20 +1,17 @@
-import { ConfigEnv, defineConfig, Plugin, UserConfigExport } from 'vite'
+import { ConfigEnv, Plugin, UserConfigExport } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import fetch from 'node-fetch'
-//import mockServer from 'vite-plugin-mock-server'
-//import mockServer from '../dist'
 import mockServer from '../src'
 
 const port = 8000
 export default ({ command, mode }: ConfigEnv): UserConfigExport => {
-
-  if(mode !== 'test')
+  if(mode !== 'test') {
     return {
       plugins: [
         vue(), 
-        mockServer()
+        mockServer() as Plugin
     ]}
-  else 
+  } else {
     // auto close after 5 secounds, to the runtime
     return {
       server: {
@@ -22,7 +19,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       },
       plugins: [
         vue(), 
-        mockServer(),
+        mockServer() as Plugin,
         {
           name: `vite-plugin-stop`,
           apply: 'serve',
@@ -41,5 +38,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             , 5000)
           }
         }
-    ]}
+      ]
+    }
+  }
 }

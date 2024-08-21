@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
@@ -17,6 +17,6 @@ export default defineConfig({
         bodyParser.text(),
         bodyParser.raw()
       ]
-    })
+    }) as Plugin
   ]
 })
